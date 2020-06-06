@@ -288,9 +288,21 @@ class activationController:
         self.facadeWrapper = facadeWrapper
         self.fileFactory = fileFactory
 
-    def activateSender(self):
+    def activateSender(self, activeFlag, remote, _id):
         self.fileFactory.activateCallback()
+        _contents = self.facadeWrapper.senders[self.portId]
+        if 'subscription' in _contents:
+            _subscription = _contents['subscription']
+            _subscription['active'] = activeFlag
+            if remote is not None:
+                _subscription[remote] = _id
         self.facadeWrapper.updateSender(self.portId)
 
-    def activateReceiver(self):
+    def activateReceiver(self, activeFlag, remote, _id):
+        _contents = self.facadeWrapper.receivers[self.portId]
+        if 'subscription' in _contents:
+            _subscription = _contents['subscription']
+            _subscription['active'] = activeFlag
+            if remote is not None:
+                _subscription[remote] = _id
         self.facadeWrapper.updateReceiver(self.portId)

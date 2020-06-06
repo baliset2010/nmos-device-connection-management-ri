@@ -45,14 +45,36 @@ class AbstractDevice:
     def setActivateCallback(self, callback):
         self.callback = callback
 
+    def masterEnabled(self):
+        if 'master_enable' in self.active:
+            if self.active['master_enable']:
+                return True
+            else:
+                return False
+        return False
+    
     def activateStaged(self):
         oldParams = copy.deepcopy(self.active)
         self.active = copy.deepcopy(self.resolveParameters(self.staged))
         self.unLock()
         if self.callback is not None:
             try:
+                if self.masterEnabled():
+                    if self.__class__.__name__ == 'RtpReceiver':
+                        self.callback(True, 'sender_id', self.staged['sender_id'])
+                    elif self.__class__.__name__ == 'RtpSender':
+                        self.callback(True, 'receiver_id', self.staged['receiver_id'])
+                    else:
+                        self.callback(True, None, None)
+                else:
+                    self.logger.writeDebug('active to False')
+                    if self.__class__.__name__ == 'RtpReceiver':
+                        self.callback(False, 'sender_id', None)
+                    elif self.__class__.__name__ == 'RtpSender':
+                        self.callback(False, 'receiver_id', None)
+                    else:
+                        self.callback(False, None, None)
                 self.logger.writeDebug("Activation suceeded")
-                self.callback()
             except Exception as e:
                 self.logger.writeWarning("Activation failed, reverting to old params. {}".format(e))
                 self.active = copy.deepcopy(oldParams)
