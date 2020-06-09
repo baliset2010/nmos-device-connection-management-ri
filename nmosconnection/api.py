@@ -384,6 +384,12 @@ class ConnectionManagementAPI(WebAPI):
         self.validateAPIVersion(api_version)
         return ['senders/', 'receivers/']
 
+    @route(CONN_ROOT + "<api_version>/" + BUL_ROOT + '<transceiverType>', methods=['GET'])
+    def __bulk_senders_receivers(self, api_version, transceiverType):
+        """Should return 'Method is not allowed' """
+        self.validateAPIVersion(api_version)
+        abort(405, 'This API is not allowed in IS-05')
+
     @route(CONN_ROOT + "<api_version>/" + BULK_ROOT + '<transceiverType>',
            methods=['POST'])
     def __bulk_senders_staged_patch(self, api_version, transceiverType):
